@@ -243,13 +243,13 @@ World <- setRefClass(
             nrow = 2,
             byrow = TRUE
         ),
-        hive = Hive$new(
+        hive = Hive(
             x = 20L, y = 20L, bearRate = 2L, antLiveLength = 100L, broughtFood = 0L, pheromoneRate = 1
         ),
-        foods = list(Food$new(
+        foods = list(Food(
             x = 10L, y = 10L, foodRemaining = 1000L, pheromoneRate = 1
         )),
-        map = Map$new(),
+        map = Map(),
         ants = list(),
         pheromoneFilter =
             list(
@@ -278,6 +278,8 @@ World <- setRefClass(
                 pheromoneFilter$xOffset,
                 pheromoneFilter$yOffset
             )
+            for (ant in ants)
+                ant$checkFoodAndRelease()
         },
         moveAnts = function() {
             for (ant in ants)
@@ -286,7 +288,6 @@ World <- setRefClass(
         checkAnts = function() {
             living_ants <- list()
             for (ant in ants) {
-                ant$checkFoodAndRelease()
                 if (ant$ticksToDie > 0 &
                     ant$x > 1 &
                     ant$x < map$width &
@@ -336,7 +337,7 @@ World <- setRefClass(
                     rep(0, map$width * map$height),
                     rep(1, map$width * map$height),
                     rep(1, map$width * map$height),
-                    apply(map$homePheromones, 2, rev) / (2 * max_home)),
+                    apply(map$homePheromones, 1, rev) / (2 * max_home)),
                 c(map$width, map$height, 4)
             )
             max_food <- max(map$foodPheromones)
@@ -345,7 +346,7 @@ World <- setRefClass(
                     rep(1, map$width * map$height),
                     rep(0, map$width * map$height),
                     rep(0, map$width * map$height),
-                    apply(map$foodPheromones, 2, rev) / (2 * max_food)),
+                    apply(map$foodPheromones, 1, rev) / (2 * max_food)),
                 c(map$width, map$height, 4)
             )
             grobRGBA <- add_RGBA_filters(homeRGBA, foodRGBA)
@@ -357,12 +358,12 @@ World <- setRefClass(
                     f$foodRemaining
                 }))
             g <- ggplot(data = ant_frame, aes(x = jitter(x), y = jitter(y))) +
-                annotation_custom(
-                    rasterGrob(
-                        grobRGBA,
-                        width=unit(1,"npc"),
-                        height=unit(1,"npc"),
-                        interpolate = FALSE), -Inf, Inf, -Inf, Inf) +
+                 annotation_custom(
+                     rasterGrob(
+                         grobRGBA,
+                         width=unit(1, "npc"),
+                         height=unit(1, "npc"),
+                         interpolate = FALSE), -Inf, Inf, -Inf, Inf) +
                 coord_cartesian(xlim = c(.5, map$width + .5),
                                 ylim=c(.5, map$height + .5)) +
                 geom_point(aes(color = !explore)) +
@@ -371,7 +372,7 @@ World <- setRefClass(
                     plot.background = element_blank(),
                     panel.grid.major = element_blank(),
                     panel.grid.minor = element_blank(),
-                    panel.border = element_blank(),
+                    #panel.border = element_blank(),
                     axis.text = element_blank(),
                     axis.ticks = element_blank(),
                     axis.title = element_blank(),
@@ -379,8 +380,7 @@ World <- setRefClass(
                 ) +
                 annotate("text", x = hive$x, y = hive$y, label = hive$broughtFood, color = rgb(0.6, 0, 0)) +
                 annotate("text", x = foodsLabs$x, y = foodsLabs$y, label = foodsLabs$foodRemaining, color = rgb(0, 0.6, 0.6))
-            print(g)
-
+            g
         },
         deployFoodAndHivePheromones = function () {
             for (f in foods) f$deployPheromones()
@@ -388,13 +388,13 @@ World <- setRefClass(
         },
         tick = function(count = 1) {
             for (i in 1:count) {
-                moveAnts()
                 checkAnts()
+                moveAnts()
                 deployFoodAndHivePheromones()
                 spreadPheromones()
                 bearAnts()
-                displayGG()
             }
         }
     )
 )
+
