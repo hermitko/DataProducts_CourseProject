@@ -1,14 +1,13 @@
 library(shiny)
 
-running <- FALSE
-paused <- FALSE
-counter_play <- 0
-counter_pause <- 0
-counter_stop <- -1
-ticks <- 0
-
 shinyServer(
     function(input, output, session){
+        running <- FALSE
+        paused <- FALSE
+        counter_play <- 0
+        counter_pause <- 0
+        counter_stop <- -1
+        #world <- "foo"
         tick <- reactive({
             if (input$pause > counter_pause & running){
                 running <<- FALSE
@@ -17,8 +16,16 @@ shinyServer(
             if (input$play > counter_play & !running){
                 running <<- TRUE
                 paused <<- FALSE
+                disable("winput")
+                disable("hinput")
+                disable("finput")
             }
             if (input$stop > counter_stop | (!running & !paused)){
+                running <<- FALSE
+                paused <<- FALSE
+                enable("winput")
+                enable("hinput")
+                enable("finput")
                 foods_info <- data.frame(
                     x = c(input$food1x, input$food2x, input$food3x),
                     y = c(input$food1y, input$food2y, input$food3y),
@@ -43,8 +50,6 @@ shinyServer(
                     maxAntsAtPlace = input$maxantsatplace
                 )
                 world$tick()
-                ticks <<- 0
-                running <<- FALSE
             }
             counter_play <<- input$play
             counter_pause <<- input$pause
@@ -52,8 +57,6 @@ shinyServer(
             if (running) {
                 invalidateLater(1000, session)
                 world$tick()
-                ticks <<- ticks + 1
-                #print(world$map$homePheromones)
             }
         }
         )

@@ -1,6 +1,8 @@
 library(shiny)
+library(shinyjs)
 
 shinyUI(navbarPage(
+    useShinyjs(),
     "Ant colony simulation",
     position = "static-top",
     tabPanel(
@@ -35,7 +37,8 @@ shinyUI(navbarPage(
                     style = "background-color: #dfd;
                     padding: 2px 5px;
                     margin: 8px 0px;
-                    border-radius: 5px;"
+                    border-radius: 5px;",
+                    id = "winput"
                 ),
                 div(
                     h4("Hive"),
@@ -53,7 +56,8 @@ shinyUI(navbarPage(
                     style = "background-color: #fdd;
                     padding: 2px 5px;
                     margin: 8px 0px;
-                    border-radius: 5px"
+                    border-radius: 5px",
+                    id = "hinput"
                 ),
                 style = "margin-left:0px; margin-right:0px"
             ),
@@ -133,7 +137,8 @@ shinyUI(navbarPage(
                     style = "background-color: #ddf;
                     padding: 2px 5px;
                     margin: 8px 0px;
-                    border-radius: 5px"
+                    border-radius: 5px",
+                    id = "finput"
                 ),
                 style = "margin-left:0px; margin-right:0px"
             ),
