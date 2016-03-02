@@ -37,9 +37,10 @@ shinyServer(
                 )
                 world <<- World(
                     map = Map(width = input$width, height = input$height),
-                    hive = Hive(x = input$hivex, y = input$hivey, bearRate = 2L,
-                                antLiveLength = 100L, broughtFood = 0L, pheromoneRate = 1),
-                    foods = foods
+                    hive = Hive(x = input$hivex, y = input$hivey, bearRate = input$hivebearrate,
+                                antLiveLength = 100L, broughtFood = 0L, pheromoneRate = input$hivepheromonrate),
+                    foods = foods,
+                    maxAntsAtPlace = input$maxantsatplace
                 )
                 world$tick()
                 ticks <<- 0
@@ -59,18 +60,38 @@ shinyServer(
         output$plot <- renderPlot({
             validate(
                 need(input$hivex < input$width, "Hive's x-coord is greater or equal than world width!"),
-                need(input$hivey < input$height, "Hive's y-coord is greater or equal than world height!")
+                need(input$hivey < input$height, "Hive's y-coord is greater or equal than world height!"),
+                need(input$hivex > 1, "Hive's x-coord is less or equal than 1!"),
+                need(input$hivey > 1, "Hive's y-coord is less or equal than 1!"),
+                need(input$hivex > 1 & input$hivey > 1 & input$hivex < input$width & input$hivey < input$height,
+                     "Hive has to be in the inner of the map (not even on the border)!")
             )
             tick()
             world$displayGG()
             })
         output$tick <- renderText({
             validate(
-                need(input$hivex < input$width, "Error:"),
-                need(input$hivey < input$height, "Error:`")
+                need(input$hivex > 1 & input$hivey > 1 & input$hivex < input$width & input$hivey < input$height,
+                     "Error:")
             )
             tick()
-            paste("World after", world$timeElapsed, "ticks.")
+            paste("World after", world$timeElapsed, "ticks:")
             })
+        output$statistics <- renderTable({
+            tick()
+            data.frame(
+                Statistics = c(
+                    "Total number of living ants",
+                    "Food brought to hive",
+                    "Food items remaining to collect"),
+                Value = c(
+                    length(world$ants),
+                    world$hive$broughtFood,
+                    sum(sapply(world$foods,
+                           function(f){f$foodRemaining}))
+                )
+            )
+            },
+            include.rownames = FALSE)
     }
 )

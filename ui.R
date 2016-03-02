@@ -1,10 +1,3 @@
-#             style = "text-align:center;
-#                      margin-bottom:20px;
-#                      padding:10px;
-#                      background-color:#dddddd;
-#                      border:3px outline #aaaaaa;
-#                      border-radius: 5px"
-
 library(shiny)
 
 shinyUI(navbarPage(
@@ -29,13 +22,16 @@ shinyUI(navbarPage(
                 div(
                     h4("World"),
                     sliderInput(
-                        "width", "Width (max x-coord):", 30, min = 10, max = 50,
+                        "width", "Width:", 30, min = 10, max = 50,
                         step = 1
                     ),
                     sliderInput(
-                        "height", "Height (max y-coord):", 30, min = 10, max = 50,
+                        "height", "Height:", 30, min = 10, max = 50,
                         step = 1
                     ),
+                    numericInput("maxantsatplace",
+                                 "Maximum ants at one place:",
+                                 5, min = 2, max = 10),
                     style = "background-color: #dfd;
                     padding: 2px 5px;
                     margin: 8px 0px;
@@ -52,6 +48,8 @@ shinyUI(navbarPage(
                     numericInput(
                         "hivebearrate", "Ants born each tick:", 2, min = 1, max = 5, step = 1
                     ),
+                    numericInput("hivepheromonrate", "Hive pheromon rate:",
+                                 3, min = 1, max = 10, step = 1),
                     style = "background-color: #fdd;
                     padding: 2px 5px;
                     margin: 8px 0px;
@@ -144,12 +142,16 @@ shinyUI(navbarPage(
                 plotOutput("plot"),
                 wellPanel(
                     div(
-                    actionButton("play", img(src = "play.png"), style = "margin:0px 20px"),
-                    actionButton("pause", img(src = "pause.png"), style = "margin:0px 20px"),
-                    actionButton("stop", img(src = "stop.png"), style = "margin:0px 20px"),
+                    actionButton("play", img(src = "play.png", width = "36px"), style = "margin:0px 20px"),
+                    actionButton("pause", img(src = "pause.png", width = "36px"), style = "margin:0px 20px"),
+                    actionButton("stop", img(src = "stop.png", width = "36px"), style = "margin:0px 20px"),
                     style = "text-align:center"
                     ),
-                    style = "margin:30px 40px"
+                    style = "margin:10px 40px 30px"
+                ),
+                wellPanel(
+                    h3("Statistics"),
+                    tableOutput("statistics")
                 )
             )
         )

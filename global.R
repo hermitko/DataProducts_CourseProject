@@ -65,6 +65,14 @@ Ant <- setRefClass(
                 world$map$antCounts[x, y] + 1L
         },
         chooseDirCode = function() {
+            ant_count_filter <-
+                sapply(1:nrow(world$directions),
+                       function(i){
+                           if (world$map$antCounts[x + world$directions$x[i], y + world$directions$y[i]] >= world$maxAntsAtPlace &
+                               x + world$directions$x[i] != world$hive$x & y + world$directions$y[i] != world$hive$y)
+                           0.00001 else 1
+                       }
+                )
             if (explore) {
                 dir_probs <- world$dirProbs[1, ]
                 phers <-
@@ -77,7 +85,7 @@ Ant <- setRefClass(
                                                 d <- (i - dirCode) %% length(dir_probs) + 1
                                                 dir_probs[d]
                                             })
-                probs <- dir_probs_rotated * (0.1 + phers)
+                probs <- dir_probs_rotated * (1 + phers) * ant_count_filter
                 sample(1:8, 1, FALSE, probs)
             }
             else {
@@ -91,7 +99,7 @@ Ant <- setRefClass(
                                                 d <- (i - dirCode) %% length(dir_probs) + 1
                                                 dir_probs[d]
                                             })
-                probs <- dir_probs_rotated * (1 + phers)
+                probs <- dir_probs_rotated * (1 + phers) * ant_count_filter
                 which.max(probs)
             }
         },
@@ -231,7 +239,8 @@ World <- setRefClass(
         dirProbs = "matrix",
         pheromoneFilter = "list",
         directions = "data.frame",
-        timeElapsed = "integer"
+        timeElapsed = "integer",
+        maxAntsAtPlace = "integer"
     ),
     methods = list(
         initialize = function(directions = data.frame(
@@ -260,7 +269,8 @@ World <- setRefClass(
                 filter = matrix(c(0, .02, 0, .02, .9, .02, 0, .02, 0), nrow = 3, ncol = 3),
                 xOffset = 2,
                 yOffset = 2
-            )
+            ),
+        maxAntsAtPlace = 5L
         ) {
             directions <<- directions
             dirProbs <<- dirProbs
@@ -270,6 +280,7 @@ World <- setRefClass(
             ants <<- ants
             pheromoneFilter <<- pheromoneFilter
             timeElapsed <<- -1L
+            maxAntsAtPlace <<- maxAntsAtPlace
         },
         spreadPheromones = function() {
             map$homePheromones <<- apply_matrix_filter(
