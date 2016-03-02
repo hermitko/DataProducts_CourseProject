@@ -140,8 +140,8 @@ Ant <- setRefClass(
             releasePheromones()
         },
         move = function() {
-            dir_code <- chooseDirCode()
-            moveDir(world$directions$x[dir_code], world$directions$y[dir_code])
+            dirCode <<- chooseDirCode()
+            moveDir(world$directions$x[dirCode], world$directions$y[dirCode])
             ticksToDie <<- ticksToDie - 1L
         }
     )
@@ -251,7 +251,7 @@ World <- setRefClass(
         dirProbs = matrix(
             c(
                 0.34, 0.23, 0.1, 0, 0, 0, 0.1, 0.23,
-                .3, .25, .1, 0, 0, 0, .1, .25
+                .2, .2, .2, 0, 0, 0, .2, .2
             ),
             nrow = 2,
             byrow = TRUE
