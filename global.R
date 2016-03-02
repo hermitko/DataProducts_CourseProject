@@ -215,7 +215,8 @@ Food <- setRefClass(
             foodRemaining <<- foodRemaining - 1L
         },
     deployPheromones = function() {
-            world$map$foodPheromones[x, y] <- world$map$foodPheromones[x, y] + pheromoneRate
+            if (foodRemaining > 0)
+                world$map$foodPheromones[x, y] <- world$map$foodPheromones[x, y] + pheromoneRate
         }
     )
 )
