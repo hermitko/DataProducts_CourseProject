@@ -1,3 +1,6 @@
+library(ggplot2)
+library(grid)
+
 apply_matrix_filter <- function(input, filter, x_offset, y_offset) {
     filtered <-
         matrix(
@@ -340,7 +343,7 @@ World <- setRefClass(
                     rep(1, map$width * map$height),
                     rep(1, map$width * map$height),
                     apply(map$homePheromones, 1, rev) / (2 * max_home)),
-                c(map$width, map$height, 4)
+                c(map$height, map$width, 4)
             )
             max_food <- max(map$foodPheromones)
             foodRGBA <- array(
@@ -349,7 +352,7 @@ World <- setRefClass(
                     rep(0, map$width * map$height),
                     rep(0, map$width * map$height),
                     apply(map$foodPheromones, 1, rev) / (2 * max_food)),
-                c(map$width, map$height, 4)
+                c(map$height, map$width, 4)
             )
             grobRGBA <- add_RGBA_filters(homeRGBA, foodRGBA)
             foodsLabs <-
