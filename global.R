@@ -77,7 +77,6 @@ Ant <- setRefClass(
                 probs <- dir_probs_rotated * (0.1 + phers)
                 sample(1:8, 1, FALSE, probs)
             }
-
             else {
                 dir_probs <- world$dirProbs[2, ]
                 phers <- sapply(1:nrow(world$directions),
@@ -227,7 +226,8 @@ World <- setRefClass(
         ants = "list",
         dirProbs = "matrix",
         pheromoneFilter = "list",
-        directions = "data.frame"
+        directions = "data.frame",
+        timeElapsed = "integer"
     ),
     methods = list(
         initialize = function(directions = data.frame(
@@ -256,7 +256,8 @@ World <- setRefClass(
                 filter = matrix(c(0, .02, 0, .02, .9, .02, 0, .02, 0), nrow = 3, ncol = 3),
                 xOffset = 2,
                 yOffset = 2
-            )) {
+            )
+        ) {
             directions <<- directions
             dirProbs <<- dirProbs
             hive <<- hive
@@ -264,6 +265,7 @@ World <- setRefClass(
             map <<- map
             ants <<- ants
             pheromoneFilter <<- pheromoneFilter
+            timeElapsed <<- -1L
         },
         spreadPheromones = function() {
             map$homePheromones <<- apply_matrix_filter(
@@ -386,7 +388,7 @@ World <- setRefClass(
             for (f in foods) f$deployPheromones()
             hive$deployPheromones()
         },
-        tick = function(count = 1) {
+        tick = function(count = 1L) {
             for (i in 1:count) {
                 checkAnts()
                 moveAnts()
@@ -394,6 +396,7 @@ World <- setRefClass(
                 spreadPheromones()
                 bearAnts()
             }
+            timeElapsed <<- timeElapsed + count
         }
     )
 )
