@@ -67,7 +67,7 @@ shinyServer(
                      "Hive has to be in the inner of the map (not even on the border)!")
             )
             tick()
-            world$displayGG()
+            world$display()
             })
         output$tick <- renderText({
             validate(

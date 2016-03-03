@@ -1,20 +1,28 @@
 library(ggplot2)
 library(grid)
 
+# directions in our 2D universe
 directions <- data.frame(
     x = c(0L, 1L, 1L, 1L, 0L,-1L,-1L,-1L),
     y = c(1L, 1L, 0L,-1L,-1L,-1L, 0L, 1L),
     row.names = c("N", "NE", "E", "SE", "S", "SW", "W", "NW"))
 
-dirProbs = matrix(
+# probabilites of the new direction of an ant depending on its task
+dirProbs <- matrix(
     c(
         0.34, 0.23, 0.1, 0, 0, 0, 0.1, 0.23,
         .2, .2, .2, 0, 0, 0, .2, .2
     ),
     nrow = 2,
-    byrow = TRUE
+    byrow = TRUE,
+    dimnames = list(
+        c("explore", "bring_home"),
+        c("forward", "forward_right", "right", "back_right",
+          "back", "back_left", "left", "forward_left")
+    )
 )
 
+# a function to create map with given parameters
 create_map <-
     function(
         width = 30L,
@@ -36,6 +44,7 @@ create_map <-
         map
     }
 
+# a function to create world with given parameters
 create_world <-
     function(
         width = 30L,
@@ -68,7 +77,8 @@ create_world <-
         World(hive = hive, foods = foods, map = map, ants = list(), maxAntsAtPlace = max_ants_at_place)
     }
 
-
+# a function to apply specified filter on given matrix
+# corresponds to image blurring
 apply_matrix_filter <- function(input, filter, x_offset, y_offset) {
     filtered <-
         matrix(
@@ -100,13 +110,14 @@ apply_matrix_filter <- function(input, filter, x_offset, y_offset) {
     filtered[1:nrow(input) + x_offset - 1, 1:ncol(input) + y_offset - 1]
 }
 
-
+# a dummy function to blend two alpha filters
 add_RGBA_filters <- function(f1, f2){
     width <- dim(f1)[1]
     height <- dim(f1)[2]
     res <- f1
     for (i in 1:width){
         for (j in 1:height){
+            # here comes the blending with the ugly hack to stay in [0, 1]
             res[i, j, 1:3] <-
                 0.005 + 0.99 * ((1 - f1[i, j, 4]) * f1[i, j, 1:3] + (1 - f2[i, j, 4]) * f2[i, j, 1:3]) / (2 - f1[i, j, 4] - f2[i, j, 4])
             res[i, j, 4] <- 1 - (1 - f1[i, j, 4]) * (1 - f2[i, j, 4])
@@ -115,6 +126,7 @@ add_RGBA_filters <- function(f1, f2){
     res
 }
 
+# an RC-class of an ant
 Ant <- setRefClass(
     "Ant",
     fields = list(
@@ -125,6 +137,8 @@ Ant <- setRefClass(
         ticksToDie = "integer"
     ),
     methods = list(
+        # a method for choosing the direction code depending on the state of
+        # given ant and neighbor situation (number of ants around, pheromones, ...)
         chooseDirCode = function(neighborhood, max_ants_at_place) {
             home_pheromons <- neighborhood[, , "homePheromones"]
             food_pheromons <- neighborhood[, , "foodPheromones"]
@@ -176,6 +190,9 @@ Ant <- setRefClass(
                 which.max(probs)
             }
         },
+        # a method for selecting the best direction according to ant's task
+        # used when new ant is born, when ant finds food and when it succesfully
+        # brings food to the hive
         setBestDirCode = function(neighborhood){
             pher_code = if (explore) 2 else 1
             phers <-
@@ -185,8 +202,9 @@ Ant <- setRefClass(
                         neighborhood[2 + directions$x[i], 2 + directions$y[i], pher_code]
                     }
                 )
-            dirCode <<- which.max(phers)
+            dirCode <<- which.max(phers + rnorm(nrow(directions), sd = 0.0001))
         },
+        # a method for choose the direction to move and to move the ant towards it
         move = function(neighborhood, max_ants_at_place) {
             dirCode <<- chooseDirCode(neighborhood, max_ants_at_place)
             ticksToDie <<- ticksToDie - 1L
@@ -196,6 +214,7 @@ Ant <- setRefClass(
     )
 )
 
+#an RC-class for the map
 Map <- setRefClass(
     "Map",
     fields = list(
@@ -224,20 +243,24 @@ Map <- setRefClass(
                                              "antCounts", "foodsAndHives"))
                 pheromoneFilter <<- pheromoneFilter
             },
+        # a method for adding home pheromones to specified location
         addHomePheromones = function(x, y, amount){
             environ[x, y, "homePheromones"] <<-
                 environ[x, y, "homePheromones"] + amount
         },
+        # a method for adding food pheromones to specified location
         addFoodPheromones = function(x, y, amount){
             environ[x, y, "foodPheromones"] <<-
                 environ[x, y, "foodPheromones"] + amount
         },
+        # a method for updating ant counts when ant moves
         moveAnt = function(from_x, from_y, to_x, to_y){
             environ[from_x, from_y, "antCounts"] <<-
                 environ[from_x, from_y, "antCounts"] - 1
             environ[to_x, to_y, "antCounts"] <<-
                 environ[to_x, to_y, "antCounts"] - 1
         },
+        # a method for spreading (i.e. blurring) pheromones
         spreadPheromones = function() {
             environ[, , "homePheromones"] <<- apply_matrix_filter(
                 environ[, , "homePheromones"],
@@ -255,6 +278,7 @@ Map <- setRefClass(
     )
 )
 
+# an RC-class for the hive
 Hive <- setRefClass(
     "Hive",
     fields = list(
@@ -266,26 +290,28 @@ Hive <- setRefClass(
         pheromoneRate = "numeric"
     ),
     methods = list(
+        # a method for bearing ants according to bearRate
         bearAnts = function() {
             sapply(1:bearRate,
                    function(i) {
                        ant <- Ant$new(
                            x = x,
                            y = y,
-                           dirCode = sample.int(8, 1),
                            explore = TRUE,
                            ticksToDie = antLiveLength
                        )
-                       ant$setBestDirCode
+                       ant$setBestDirCode()
                        ant
                    })
         },
+        # a method for deploying food from an ant who brought it
         deployFood = function() {
             broughtFood <<- broughtFood + 1L
         }
     )
 )
 
+#an RC-class for food source
 Food <- setRefClass(
     "Food",
     fields = list(
@@ -295,12 +321,14 @@ Food <- setRefClass(
         pheromoneRate = "numeric"
     ),
     methods = list(
+        # a method for decreasing food amount when an ant find this source
         eat = function() {
             foodRemaining <<- foodRemaining - 1L
         }
     )
 )
 
+# an RC-class for the world
 World <- setRefClass(
     "World",
     fields = list(
@@ -328,6 +356,7 @@ World <- setRefClass(
             timeElapsed <<- -1L
             maxAntsAtPlace <<- maxAntsAtPlace
         },
+        # a method for moving ants around and updating their counts on map
         moveAnts = function() {
             for (ant in ants){
                 old_x = ant$x
@@ -336,6 +365,7 @@ World <- setRefClass(
                 map$moveAnt(old_x, old_y, ant$x, ant$y)
             }
         },
+        # a method for checking if ants are alive and in the interior of the world
         checkAntsLive = function() {
             living_ants <- list()
             for (ant in ants) {
@@ -350,6 +380,7 @@ World <- setRefClass(
             }
             ants <<- living_ants
         },
+        # a method for checking if ants succeeded in their tasks (find food / bring home)
         checkAntsTask = function(){
             for (ant in ants) {
                 if (!ant$explore & ant$x == hive$x & ant$y == hive$y){
@@ -368,34 +399,14 @@ World <- setRefClass(
                 }
             }
         },
+        # a method for appending newborn ants to ant list
         bearAnts = function() {
             ants <<- c(ants, hive$bearAnts())
             map$environ[hive$x, hive$y, "antCounts"] <<-
                 map$environ[hive$x, hive$y, "antCounts"] + hive$bearRate
         },
-        display = function() {
-            ant_frame <- data.frame(t(sapply(ants, function(a) {
-                c(x = a$x, y = a$y)
-                })),
-                explore = sapply(ants, function(a) {
-                    a$explore
-                })
-            )
-            plot(
-                jitter(ant_frame$x[ant_frame$explore]),
-                jitter(ant_frame$y[ant_frame$explore]),
-                xlim = c(0, map$width + 1),
-                ylim = c(0, map$height + 1)
-            )
-            points(jitter(ant_frame$x[!ant_frame$explore]),
-                   jitter(ant_frame$y[!ant_frame$explore]),
-                   col = 2)
-            image(
-                x = 1:30, y = 1:30, map$environ[, , "homePheromones"], add = TRUE,
-                col = rainbow(255, alpha = .5)
-            )
-        },
-        displayGG = function(){
+        # a method for displaying the world (hive, foods, ants, pheromones)
+        display = function(){
             ant_frame <- data.frame(t(sapply(ants, function(a) {
                     c(x = a$x, y = a$y)
                 })),
@@ -452,6 +463,8 @@ World <- setRefClass(
                 annotate("text", x = foodsLabs$x, y = foodsLabs$y, label = foodsLabs$foodRemaining, color = rgb(0, 0.6, 0.6))
             g
         },
+        # a method for deploying pheromones from hive, food sources and ants
+        # (depending on their task)
         deployFoodAndHivePheromones = function () {
             for (f in foods)
                 if (f$foodRemaining > 0)
@@ -465,6 +478,7 @@ World <- setRefClass(
                 }
             }
         },
+        # a method for simulating one time-unit
         tick = function(count = 1L) {
             for (i in 1:count) {
                 checkAntsLive()
