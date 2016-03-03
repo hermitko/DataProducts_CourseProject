@@ -300,7 +300,6 @@ Hive <- setRefClass(
                            explore = TRUE,
                            ticksToDie = antLiveLength
                        )
-                       ant$setBestDirCode()
                        ant
                    })
         },
@@ -401,7 +400,10 @@ World <- setRefClass(
         },
         # a method for appending newborn ants to ant list
         bearAnts = function() {
-            ants <<- c(ants, hive$bearAnts())
+            newborn_ants <- hive$bearAnts()
+            for (ant in newborn_ants)
+                ant$setBestDirCode(map$environ[hive$x + -1:1, hive$y + -1:1, ])
+            ants <<- c(ants, newborn_ants)
             map$environ[hive$x, hive$y, "antCounts"] <<-
                 map$environ[hive$x, hive$y, "antCounts"] + hive$bearRate
         },
