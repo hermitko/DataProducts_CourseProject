@@ -40,9 +40,9 @@ shinyServer(
                     hive_x = input$hivex,
                     hive_y = input$hivey,
                     bear_rate = input$hivebearrate,
-                    ant_live_length = 100L,
+                    ant_live_length = input$antlivelength,
                     brought_food = 0L,
-                    hive_pheromone_rate = input$hivepheromonrate,
+                    hive_pheromone_rate = input$hivepheromonerate,
                     foods_data = foods_info[1:input$foodscount, ],
                     max_ants_at_place = input$maxantsatplace
                 )

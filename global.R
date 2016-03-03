@@ -448,21 +448,21 @@ World <- setRefClass(
                          width=unit(1, "npc"),
                          height=unit(1, "npc"),
                          interpolate = FALSE), -Inf, Inf, -Inf, Inf) +
-                coord_cartesian(xlim = c(.5, map$width + .5),
-                                ylim=c(.5, map$height + .5)) +
-                geom_point(aes(color = !explore)) +
-                theme_bw() +
-                theme(
-                    plot.background = element_blank(),
-                    panel.grid.major = element_blank(),
-                    panel.grid.minor = element_blank(),
-                    axis.text = element_blank(),
-                    axis.ticks = element_blank(),
-                    axis.title = element_blank(),
-                    legend.position = "none"
-                ) +
-                annotate("text", x = hive$x, y = hive$y, label = hive$broughtFood, color = rgb(0.6, 0, 0)) +
-                annotate("text", x = foodsLabs$x, y = foodsLabs$y, label = foodsLabs$foodRemaining, color = rgb(0, 0.6, 0.6))
+                 coord_cartesian(xlim = c(.5, map$width + .5),
+                                 ylim=c(.5, map$height + .5)) +
+                 geom_point(aes(color = !explore)) +
+                 theme_bw() +
+                 theme(
+                     plot.background = element_blank(),
+                     panel.grid.major = element_blank(),
+                     panel.grid.minor = element_blank(),
+                     axis.text = element_blank(),
+                     axis.ticks = element_blank(),
+                     axis.title = element_blank(),
+                     legend.position = "none"
+                 ) +
+                 annotate("text", x = hive$x, y = hive$y, label = hive$broughtFood, color = rgb(0.6, 0, 0)) +
+                 annotate("text", x = foodsLabs$x, y = foodsLabs$y, label = foodsLabs$foodRemaining, color = rgb(0, 0.6, 0.6))
             g
         },
         # a method for deploying pheromones from hive, food sources and ants

@@ -1,13 +1,19 @@
 library(shiny)
 library(shinyjs)
 
-shinyUI(navbarPage(
-    useShinyjs(),
+shinyUI(
+    navbarPage(
     "Ant colony simulation",
     position = "static-top",
     tabPanel(
         "Simulation app",
-
+        tags$head(
+            tags$style(".navbar-brand {font-size:200%; padding-right:150px;
+                       margin-right:50px;
+                       background-image:url('100px-Ant_(Jacob_Eckert).svg.png');
+                       background-position:right center;
+                       background-repeat: no-repeat}")
+        ),
         fluidRow(column(
             width = 5,
             h3("Simulation settings:",
@@ -51,7 +57,10 @@ shinyUI(navbarPage(
                     numericInput(
                         "hivebearrate", "Ants born each tick:", 2, min = 1, max = 5, step = 1
                     ),
-                    numericInput("hivepheromonrate", "Hive pheromon rate:",
+                    numericInput(
+                        "antlivelength", "Lifespan:", 100, min = 50, max = 200, step = 10
+                    ),
+                    numericInput("hivepheromonerate", "Hive pheromone rate:",
                                  3, min = 1, max = 10, step = 1),
                     style = "background-color: #fdd;
                     padding: 2px 5px;
@@ -64,9 +73,9 @@ shinyUI(navbarPage(
             column(
                 width = 3,
                 div(
-                    h4("Food"),
+                    h4("Food sources"),
                     sliderInput(
-                        "foodscount", "Count of foods:", 1, min = 1, max = 3, step = 1
+                        "foodscount", "Count of food sources:", 1, min = 1, max = 3, step = 1
                     ),
                     div(
                         div(
@@ -161,5 +170,8 @@ shinyUI(navbarPage(
             )
         )
     ),
-    tabPanel("Help")
+    tabPanel("Help & Info",
+        includeMarkdown("help.md")
+    ),
+    useShinyjs()
 ))
