@@ -1,5 +1,6 @@
 library(shiny)
 library(shinyjs)
+library(markdown)
 
 shinyUI(
     navbarPage(
@@ -10,7 +11,7 @@ shinyUI(
         tags$head(
             tags$style(".navbar-brand {font-size:200%; padding-right:150px;
                        margin-right:50px;
-                       background-image:url('100px-Ant_(Jacob_Eckert).svg.png');
+                       background-image:url('ant.png');
                        background-position:right center;
                        background-repeat: no-repeat}")
         ),
