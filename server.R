@@ -59,12 +59,46 @@ shinyServer(
         )
         output$plot <- renderPlot({
             validate(
-                need(input$hivex < input$width, "Hive's x-coord is greater or equal than world width!"),
-                need(input$hivey < input$height, "Hive's y-coord is greater or equal than world height!"),
-                need(input$hivex > 1, "Hive's x-coord is less or equal than 1!"),
-                need(input$hivey > 1, "Hive's y-coord is less or equal than 1!"),
+                need(input$hivex < input$width,
+                     "Hive's x-coord is greater or equal than world width!"),
+                need(input$hivey < input$height,
+                     "Hive's y-coord is greater or equal than world height!"),
+                need(input$hivex > 1,
+                     "Hive's x-coord is less or equal than 1!"),
+                need(input$hivey > 1,
+                     "Hive's y-coord is less or equal than 1!"),
                 need(input$hivex > 1 & input$hivey > 1 & input$hivex < input$width & input$hivey < input$height,
-                     "Hive has to be in the inner of the map (not even on the border)!")
+                     "Hive has to be in the inner of the map (not even on the border)!"),
+                need(input$food1x < input$width,
+                     "First food source's x-coord is greater or equal than world width!"),
+                need(input$food1x > 1,
+                     "First food source's x-coord is less or equal than 1!"),
+                need(input$food1y < input$height,
+                     "First food source's y-coord is greater or equal than world height!"),
+                need(input$food1y > 1,
+                     "First food source's y-coord is less or equal than 1!"),
+                need(input$food2x < input$width | input$foodscount <= 1,
+                     "Second food source's x-coord is greater or equal than world width!"),
+                need(input$food2x > 1 | input$foodscount <= 1,
+                     "Second food source's x-coord is less or equal than 1!"),
+                need(input$food2y < input$height | input$foodscount <= 1,
+                     "Second food source's y-coord is greater or equal than world height!"),
+                need(input$food2y > 1 | input$foodscount <= 1,
+                     "Second food source's y-coord is less or equal than 1!"),
+                need(input$food3x < input$width | input$foodscount <= 2,
+                     "Third food source's x-coord is greater or equal than world width!"),
+                need(input$food3x > 1 | input$foodscount <= 2,
+                     "Third food source's x-coord is less or equal than 1!"),
+                need(input$food3y < input$height | input$foodscount <= 2,
+                     "Third food source's y-coord is greater or equal than world height!"),
+                need(input$food3y > 1 | input$foodscount <= 2,
+                     "Third food source's y-coord is less or equal than 1!"),
+                need(input$food1x < input$width & input$food1y < input$height &
+                         (input$foodscount <= 1 | input$food2x < input$width &
+                              input$food2y < input$height & input$food2x > 1 & input$food2y > 1) &
+                         (input$foodscount <= 2 | input$food3x < input$width &
+                              input$food3y < input$height & input$food3x > 1 & input$food3y > 1),
+                     "Food sources have to be in the inner of the map!")
             )
             tick()
             world$display()
@@ -72,6 +106,12 @@ shinyServer(
         output$tick <- renderText({
             validate(
                 need(input$hivex > 1 & input$hivey > 1 & input$hivex < input$width & input$hivey < input$height,
+                     "Error:"),
+                need(input$food1x < input$width & input$food1y < input$height &
+                         (input$foodscount <= 1 | input$food2x < input$width &
+                              input$food2y < input$height & input$food2x > 1 & input$food2y > 1) &
+                         (input$foodscount <= 2 | input$food3x < input$width &
+                              input$food3y < input$height & input$food3x > 1 & input$food3y > 1),
                      "Error:")
             )
             tick()
