@@ -7,7 +7,7 @@ shinyServer(
         counter_play <- 0
         counter_pause <- 0
         counter_stop <- -1
-        #world <- "foo"
+        world <- "foo"
         tick <- reactive({
             if (input$pause > counter_pause & running){
                 running <<- FALSE
@@ -31,23 +31,20 @@ shinyServer(
                     y = c(input$food1y, input$food2y, input$food3y),
                     food_remaining = c(input$food1amount,
                                        input$food2amount,
-                                       input$food3amount)
+                                       input$food3amount),
+                    pheromone_rate = c(1, 1, 1)
                 )
-                foods <- lapply(
-                    1:input$foodscount,
-                    function(i){
-                        Food(x = foods_info$x[i],
-                             y = foods_info$y[i],
-                             foodRemaining = foods_info$food_remaining[i],
-                             pheromoneRate = 1)
-                     }
-                )
-                world <<- World(
-                    map = Map(width = input$width, height = input$height),
-                    hive = Hive(x = input$hivex, y = input$hivey, bearRate = input$hivebearrate,
-                                antLiveLength = 100L, broughtFood = 0L, pheromoneRate = input$hivepheromonrate),
-                    foods = foods,
-                    maxAntsAtPlace = input$maxantsatplace
+                world <<- create_world(
+                    width = input$width,
+                    height = input$height,
+                    hive_x = input$hivex,
+                    hive_y = input$hivey,
+                    bear_rate = input$hivebearrate,
+                    ant_live_length = 100L,
+                    brought_food = 0L,
+                    hive_pheromone_rate = input$hivepheromonrate,
+                    foods_data = foods_info[1:input$foodscount, ],
+                    max_ants_at_place = input$maxantsatplace
                 )
                 world$tick()
             }
