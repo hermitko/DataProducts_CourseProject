@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Ant Colony Simulation</title>
+  <meta charset="utf-8">
+  <meta name="description" content="Ant Colony Simulation">
+  <meta name="author" content="Jan Herman">
+  <meta name="generator" content="slidify" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta http-equiv="X-UA-Compatible" content="chrome=1">
+  <link rel="stylesheet" href="libraries/frameworks/io2012/css/default.css" media="all" >
+  <link rel="stylesheet" href="libraries/frameworks/io2012/css/phone.css" 
+    media="only screen and (max-device-width: 480px)" >
+  <link rel="stylesheet" href="libraries/frameworks/io2012/css/slidify.css" >
+  <link rel="stylesheet" href="libraries/highlighters/highlight.js/css/tomorrow.css" />
+  <base target="_blank"> <!-- This amazingness opens all links in a new tab. -->  <link rel=stylesheet href="./assets/css/ribbons.css"></link>
+
+  
+  <!-- Grab CDN jQuery, fall back to local if offline -->
+  <script src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.7.min.js"></script>
+  <script>window.jQuery || document.write('<script src="libraries/widgets/quiz/js/jquery.js"><\/script>')</script> 
+  <script data-main="libraries/frameworks/io2012/js/slides" 
+    src="libraries/frameworks/io2012/js/require-1.0.8.min.js">
+  </script>
+  
+  
+
+</head>
+<body style="opacity: 0">
+  <slides class="layout-widescreen">
+    
+    <!-- LOGO SLIDE -->
+        <slide class="title-slide segue nobackground">
+  <hgroup class="auto-fadein">
+    <h1>Ant Colony Simulation</h1>
+    <h2></h2>
+    <p>Jan Herman<br/></p>
+  </hgroup>
+  <article></article>  
+</slide>
+    
+
+    <!-- SLIDES -->
+    <slide class="" id="slide-1" style="background:;">
+  <hgroup>
+    <h2><img src="www/ant2.png" alt="ant"><img src="www/ant2.png" alt="ant"><img src="www/ant2.png" alt="ant"> Introduction</h2>
+  </hgroup>
+  <article data-timings="">
+    <ul>
+<li>The Ant Colony Simulation is an application written as an assignment for
+Coursera&#39;s
+<a href="https://www.coursera.org/learn/data-products">Developing Data Products</a> class.</li>
+<li>The purpose of this application is to simulate behaviour of ants living on the flat
+rectangular world divided into rectangular cells.</li>
+<li>The app is written in <a href="https://www.r-project.org/">R</a> using
+<a href="http://shiny.rstudio.com/">Shiny</a> framework.</li>
+<li>The app is available online (<a href="https://hermitko.shinyapps.io/Ant_Simulation/">https://hermitko.shinyapps.io/Ant_Simulation/</a>).</li>
+<li>This presentation is done in <a href="http://slidify.org/">Slidify</a>.</li>
+<li>Source codes for the app and this presentation can be found on <a href="https://github.com/hermitko/DataProducts_CourseProject">github</a>.</li>
+</ul>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-2" style="background:;">
+  <hgroup>
+    <h2><img src="www/ant2.png" alt="ant"><img src="www/ant2.png" alt="ant"><img src="www/ant2.png" alt="ant"> Rules of simulation</h2>
+  </hgroup>
+  <article data-timings="">
+    <style>
+em {font-style:italic; color:#55f}
+</style>
+
+<ul>
+<li>The simulation runs in discrete time.</li>
+<li>Each second the state of the world is displayed.</li>
+<li>Ants are looking for food sources.</li>
+<li>When they found food, they try to bring it to the hive.</li>
+<li>In every <em>tick</em> (time step), each ant move one step in one of eight
+possible directions.</li>
+<li>Ants aren&#39;t communicating directly, they use <em>pheromones</em> to mark their path
+to food / to home.</li>
+<li>Exploring ants are likely to follow the path marked by
+<em>food pheromones</em>.</li>
+<li>Ants that bring food back home follow the path marked by
+<em>home pheromones</em>.</li>
+</ul>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-3" style="background:;">
+  <hgroup>
+    <h2><img src="www/ant2.png" alt="ant"><img src="www/ant2.png" alt="ant"><img src="www/ant2.png" alt="ant"> Adjustable parameters</h2>
+  </hgroup>
+  <article data-timings="">
+    <p>The simulation has a lots of parameters, some of them can be adjusted in the app:</p>
+
+<div style='float:left;width:48%;' class='centered'>
+  <ul>
+<li>world parameters
+
+<ul>
+<li>the dimensions (<code>width</code> and <code>height</code>) </li>
+<li><code>maximum ants at one place</code> </li>
+</ul></li>
+<li>hive parameters
+
+<ul>
+<li>position (<code>the x-coord</code> and <code>the y-coord</code>)</li>
+<li><code>ants born each tick</code> </li>
+<li><code>lifespan</code> of each ant</li>
+<li><code>hive pheromone rate</code> – how much home pheromones 
+release the hive itself)</li>
+</ul></li>
+</ul>
+
+</div>
+<div style='float:right;width:48%;'>
+  <ul>
+<li>food sources parameters
+
+<ul>
+<li><code>count of food sources</code></li>
+<li>position (<code>n-th x</code> and <code>n-th y</code>) of particular food source</li>
+<li><code>n-th amount</code> –  the amount of food available in particular source</li>
+</ul></li>
+</ul>
+
+</div>
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-4" style="background:;">
+  <hgroup>
+    <h2><img src="www/ant2.png" alt="ant"><img src="www/ant2.png" alt="ant"><img src="www/ant2.png" alt="ant"> World visualisation example</h2>
+  </hgroup>
+  <article data-timings="">
+    <pre><code class="r">source(&quot;global.R&quot;)
+world &lt;- create_world(
+    foods_data = data.frame(x = c(20L, 20L, 10L), y = c(20L, 10L, 20L),
+        food_remaining = c(100L, 100L, 100L), pheromone_rate = c(1, 1, 1)))
+world$tick(200L)
+print(world$display())
+</code></pre>
+
+<p><img src="assets/fig/unnamed-chunk-2-1.png" title="plot of chunk unnamed-chunk-2" alt="plot of chunk unnamed-chunk-2" style="display: block; margin: auto;" /></p>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+    <slide class="backdrop"></slide>
+  </slides>
+  <div class="pagination pagination-small" id='io2012-ptoc' style="display:none;">
+    <ul>
+      <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=1 title='<img src="www/ant2.png" alt="ant"><img src="www/ant2.png" alt="ant"><img src="www/ant2.png" alt="ant"> Introduction'>
+         1
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=2 title='<img src="www/ant2.png" alt="ant"><img src="www/ant2.png" alt="ant"><img src="www/ant2.png" alt="ant"> Rules of simulation'>
+         2
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=3 title='<img src="www/ant2.png" alt="ant"><img src="www/ant2.png" alt="ant"><img src="www/ant2.png" alt="ant"> Adjustable parameters'>
+         3
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=4 title='<img src="www/ant2.png" alt="ant"><img src="www/ant2.png" alt="ant"><img src="www/ant2.png" alt="ant"> World visualisation example'>
+         4
+      </a>
+    </li>
+  </ul>
+  </div>  <!--[if IE]>
+    <script 
+      src="http://ajax.googleapis.com/ajax/libs/chrome-frame/1/CFInstall.min.js">  
+    </script>
+    <script>CFInstall.check({mode: 'overlay'});</script>
+  <![endif]-->
+</body>
+  <!-- Load Javascripts for Widgets -->
+  
+  <!-- LOAD HIGHLIGHTER JS FILES -->
+  <script src="libraries/highlighters/highlight.js/highlight.pack.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+  <!-- DONE LOADING HIGHLIGHTER JS FILES -->
+   
+  </html>

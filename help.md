@@ -77,8 +77,10 @@ choosing the theme was to learn some OOP in R. After exploring S3 and S4 systems
 (that are not suitable for this kind of object manipulating),
 I chose RC system.
 
+Short presentation available on (hermitko.github.io/DataProducts_CourseProject/)
+
 The images are properly licensed:
-- <a href="https://commons.wikimedia.org/wiki/File:Ant_(Jacob_Eckert).svg">Ant</a> from Jacob Eckert
-- [Buttons](https://openclipart.org/detail/17304/deck-or-vcr-button) from czara1
+- <a href="https://commons.wikimedia.org/wiki/File:Ant_(Jacob_Eckert).svg">Ant</a> by Jacob Eckert
+- [Buttons](https://openclipart.org/detail/17304/deck-or-vcr-button) by czara1
 
 Created by Jan Herman in 2016.
