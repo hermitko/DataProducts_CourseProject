@@ -10,7 +10,7 @@ mode        : selfcontained # {standalone, draft}
 knit        : slidify::knit2slides
 ---
 
-##  ![ant](www/ant2.png)![ant](www/ant2.png)![ant](www/ant2.png) Introduction 
+##  ![ant](shinyapp/www/ant2.png)![ant](shinyapp/www/ant2.png)![ant](shinyapp/www/ant2.png) Introduction 
 
 - The Ant Colony Simulation is an application written as an assignment for
 Coursera's
@@ -25,7 +25,7 @@ rectangular world divided into rectangular cells.
 (https://github.com/hermitko/DataProducts_CourseProject).
 
 ---
-##  ![ant](www/ant2.png)![ant](www/ant2.png)![ant](www/ant2.png) Rules of simulation 
+##  ![ant](shinyapp/www/ant2.png)![ant](shinyapp/www/ant2.png)![ant](shinyapp/www/ant2.png) Rules of simulation 
 
 <style>
 em {font-style:italic; color:#55f}
@@ -45,7 +45,7 @@ _food pheromones_.
 _home pheromones_.
 
 --- &twocol w1:48% w2:68%
-## ![ant](www/ant2.png)![ant](www/ant2.png)![ant](www/ant2.png) Adjustable parameters 
+## ![ant](shinyapp/www/ant2.png)![ant](shinyapp/www/ant2.png)![ant](shinyapp/www/ant2.png) Adjustable parameters 
 
 The simulation has a lots of parameters, some of them can be adjusted in the app:
 
@@ -71,14 +71,14 @@ The simulation has a lots of parameters, some of them can be adjusted in the app
 
 ---
 
-## ![ant](www/ant2.png)![ant](www/ant2.png)![ant](www/ant2.png) World visualisation example
+## ![ant](shinyapp/www/ant2.png)![ant](shinyapp/www/ant2.png)![ant](shinyapp/www/ant2.png) World visualisation example
 
 ```{r echo=FALSE}
 set.seed(123)
 ```
 
 ```{r fig.width=8,fig.height=5,fig.align='center'}
-source("global.R")
+source("shinyapp/global.R")
 world <- create_world(
     foods_data = data.frame(x = c(20L, 20L, 10L), y = c(20L, 10L, 20L),
         food_remaining = c(100L, 100L, 100L), pheromone_rate = c(1, 1, 1)))
